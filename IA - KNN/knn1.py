@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 from collections import Counter
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score
+import time
+
+# Começa a contar o tempo
+start_time = time.time()
 
 iris_data = pd.read_csv('iris.csv')
 iris_data.columns = ['id', 'sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
@@ -73,3 +77,11 @@ for k in k_values:
 
     print(f'Average Precision: {precision}')
     print(f'Average Recall: {recall}')
+
+# Termina de contar o tempo
+end_time = time.time()
+
+# Calcula o tempo total de execução
+execution_time = end_time - start_time
+
+print("Tempo de execução total:", execution_time, "segundos")

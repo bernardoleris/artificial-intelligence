@@ -2,6 +2,10 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score
+import time
+
+# Começa a contar o tempo
+start_time = time.time()
 
 iris = load_iris()
 
@@ -34,3 +38,10 @@ for k_value in k_values:
     recall = recall_score(y_test, model.predict(X_test), average='weighted')
     print(f"Average Recall: {recall}")
 
+# Termina de contar o tempo
+end_time = time.time()
+
+# Calcula o tempo total de execução
+execution_time = end_time - start_time
+
+print("Tempo de execução total:", execution_time, "segundos")
