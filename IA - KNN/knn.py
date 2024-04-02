@@ -38,9 +38,9 @@ def calculate_accuracy(X_train, y_train, X_test, y_test, k):
     return accuracy
 
 # Definir os valores de k a serem testados
-k_values = [1, 3, 5, 7]
+k_values = [1, 3, 5, 7, 10]
 
-# Armazenar os resultados de desempenho para cada valor de k
+# Armazenar os resultados de desempenho para cada valor de k'
 results = {}
 
 # Calcular e armazenar a taxa de reconhecimento para cada valor de k
