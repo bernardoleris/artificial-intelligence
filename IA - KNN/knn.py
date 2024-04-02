@@ -41,7 +41,7 @@ def calculate_accuracy(train_data, test_data, k):
 # Dividindo os dados em conjunto de treino e teste
 np.random.seed(42)
 iris_data = iris_data.sample(frac=1).reset_index(drop=True)  # Embaralhando os dados
-train_size = int(0.7 * len(iris_data))
+train_size = int(0.8* len(iris_data))
 train_data = iris_data[:train_size]
 test_data = iris_data[train_size:]
 
@@ -71,6 +71,7 @@ precision = precision_score(true_labels, predictions, average='weighted')
 recall = recall_score(true_labels, predictions, average='weighted')
 accuracy = accuracy_score(true_labels, predictions)
 
+print(best)
 print('\nConfusion Matrix:')
 print(conf_matrix)
 print(f'Precision: {precision}')
