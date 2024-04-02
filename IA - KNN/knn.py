@@ -1,78 +1,79 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score
+from collections import Counter
 
-# Carregar os dados da base de dados Iris
+# Leitura dos dados
 iris_data = pd.read_csv('iris.csv')
+iris_data.columns = ['id', 'sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 
-# Pré-processamento dos dados
-X = iris_data.drop('Species', axis=1).values  # Recursos (convertendo para array NumPy)
-y = iris_data['Species'].values  # Rótulos (convertendo para array NumPy)
+# Função para calcular a distância euclidiana entre dois pontos
+def euclidean_distance(point1, point2):
+    return np.sqrt(np.sum((point1 - point2) ** 2))
 
-# Dividir os dados em conjuntos de treinamento e teste
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Definir função para calcular a distância Euclidiana
-def euclidean_distance(x1, x2):
-    return np.sqrt(np.sum((x1 - x2) ** 2))
-
-# Definir função para o algoritmo K-Nearest Neighbors
-def knn_predict(X_train, y_train, x_test, k):
+# Função para classificação utilizando k-NN
+def knn(train_data, test_instance, k):
     distances = []
-    for i in range(len(X_train)):
-        distance = euclidean_distance(X_train[i], x_test)
-        distances.append((distance, y_train[i]))
-    distances = sorted(distances)[:k]
-    targets = [item[1] for item in distances]
-    return max(set(targets), key=targets.count)
+    for index, row in train_data.iterrows():
+        train_instance = row[:-1]
+        label = row[-1]
+        distance = euclidean_distance(test_instance, train_instance)
+        distances.append((distance, label))
+    distances.sort(key=lambda x: x[0])
+    neighbors = distances[:k]
+    labels = [neighbor[1] for neighbor in neighbors]
+    most_common = Counter(labels).most_common(1)
+    return most_common[0][0]
 
-# Definir função para avaliar a taxa de reconhecimento para um valor de k específico
-def calculate_accuracy(X_train, y_train, X_test, y_test, k):
-    predictions = []
-    for i in range(len(X_test)):
-        predictions.append(knn_predict(X_train, y_train, X_test[i], k))
-    accuracy = accuracy_score(y_test, predictions)
+# Função para calcular a taxa de reconhecimento para diferentes valores de k
+def calculate_accuracy(train_data, test_data, k):
+    correct_predictions = 0
+    total_predictions = len(test_data)
+    for index, row in test_data.iterrows():
+        test_instance = row[:-1]
+        true_label = row[-1]
+        predicted_label = knn(train_data, test_instance, k)
+        if predicted_label == true_label:
+            correct_predictions += 1
+    accuracy = correct_predictions / total_predictions
     return accuracy
 
-# Definir os valores de k a serem testados
-k_values = [1, 3, 5, 7, 10]
+# Dividindo os dados em conjunto de treino e teste
+np.random.seed(42)
+iris_data = iris_data.sample(frac=1).reset_index(drop=True)  # Embaralhando os dados
+train_size = int(0.7 * len(iris_data))
+train_data = iris_data[:train_size]
+test_data = iris_data[train_size:]
 
-# Armazenar os resultados de desempenho para cada valor de k'
-results = {}
-
-# Calcular e armazenar a taxa de reconhecimento para cada valor de k
+# Testando o classificador para diferentes valores de k
+k_values = [1, 3, 5, 7]
+best_accuracy = 0
+best = 0
 for k in k_values:
-    accuracy = calculate_accuracy(X_train, y_train, X_test, y_test, k)
-    results[k] = accuracy
-    print("Accuracy for k =", k, ":", accuracy)     
+    accuracy = calculate_accuracy(train_data, test_data, k)
+    if(accuracy > best_accuracy):
+        best_accuracy = accuracy
+        best = k
+    print(f'Accuracy for k = {k}: {accuracy}')
 
-# Escolher o melhor valor de k baseado na maior taxa de reconhecimento
-best_k = max(results, key=results.get)
-print("Best k:", best_k)
-print("Accuracy for best k:", results[best_k])
+# Matriz de confusão e métricas de avaliação
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score
 
-# Plotar a matriz de confusão e métricas de avaliação para o melhor valor de k
-y_pred = []
-for i in range(len(X_test)):
-    y_pred.append(knn_predict(X_train, y_train, X_test[i], best_k))
+predictions = []
+true_labels = []
+for index, row in test_data.iterrows():
+    test_instance = row[:-1]
+    true_label = row[-1]
+    predicted_label = knn(train_data, test_instance, best)  
+    predictions.append(predicted_label)
+    true_labels.append(true_label)
 
-# Plotar a matriz de confusão
-cm = confusion_matrix(y_test, y_pred)
-plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, cmap='Blues', xticklabels=iris_data['Species'].unique(), yticklabels=iris_data['Species'].unique())
-plt.xlabel('Predicted labels')
-plt.ylabel('True labels')
-plt.title('Confusion Matrix')
-plt.show()
+conf_matrix = confusion_matrix(true_labels, predictions)
+precision = precision_score(true_labels, predictions, average='weighted')
+recall = recall_score(true_labels, predictions, average='weighted')
+accuracy = accuracy_score(true_labels, predictions)
 
-# Calcular e mostrar métricas de avaliação para o melhor valor de k
-precision = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-accuracy = accuracy_score(y_test, y_pred)
-
-print("Precision:", precision)
-print("Recall:", recall)
-print("Accuracy:", accuracy)
+print('\nConfusion Matrix:')
+print(conf_matrix)
+print(f'Precision: {precision}')
+print(f'Recall: {recall}')
+print(f'Accuracy: {accuracy}')
