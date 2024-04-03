@@ -1,4 +1,4 @@
-import pandas as pd
+from sklearn.datasets import load_iris
 import numpy as np
 from collections import Counter
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score
@@ -7,17 +7,19 @@ import time
 # Começa a contar o tempo
 start_time = time.time()
 
-iris_data = pd.read_csv('iris.csv')
-iris_data.columns = ['id', 'sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
+# Carrega o conjunto de dados Iris
+iris = load_iris()
+X = iris.data
+y = iris.target
 
+# Define a função de distância euclidiana
 def euclidean_distance(point1, point2):
     return np.sqrt(np.sum((point1 - point2) ** 2))
 
+# Define a função do algoritmo KNN
 def knn(train_data, test_instance, k):
     distances = []
-    for index, row in train_data.iterrows():
-        train_instance = row.iloc[:-1]
-        label = row.iloc[-1]
+    for train_instance, label in train_data:
         distance = euclidean_distance(test_instance, train_instance)
         distances.append((distance, label))
     distances.sort(key=lambda x: x[0])
@@ -26,24 +28,26 @@ def knn(train_data, test_instance, k):
     most_common = Counter(labels).most_common(1)
     return most_common[0][0]
 
+# Define a função para calcular a acurácia
 def calculate_accuracy(train_data, test_data, k):
     correct_predictions = 0
     total_predictions = len(test_data)
-    for index, row in test_data.iterrows():
-        test_instance = row.iloc[:-1]
-        true_label = row.iloc[-1]
+    for test_instance, true_label in test_data:
         predicted_label = knn(train_data, test_instance, k)
         if predicted_label == true_label:
             correct_predictions += 1
     accuracy = correct_predictions / total_predictions
     return accuracy
 
+# Divisão dos dados em conjunto de treinamento e teste
 np.random.seed(42)
-iris_data = iris_data.sample(frac=1).reset_index(drop=True)  
-train_size = int(0.8* len(iris_data))
-train_data = iris_data[:train_size]
-test_data = iris_data[train_size:]
+data = list(zip(X, y))
+np.random.shuffle(data)
+train_size = int(0.8 * len(data))
+train_data = data[:train_size]
+test_data = data[train_size:]
 
+# Valores de k a serem testados
 k_values = [1, 3, 5, 7]
 best_accuracy = 0
 best = 0
@@ -60,9 +64,7 @@ for k in k_values:
     
     predictions = []
     true_labels = []
-    for index, row in test_data.iterrows():
-        test_instance = row.iloc[:-1]
-        true_label = row.iloc[-1]
+    for test_instance, true_label in test_data:
         predicted_label = knn(train_data, test_instance, k)  
         predictions.append(predicted_label)
         true_labels.append(true_label)
