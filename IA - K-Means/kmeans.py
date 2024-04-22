@@ -76,6 +76,8 @@ ks = [3, 5]
 best_k = None
 best_silhouette = -1
 
+print("Algoritmo com implementação manual:")
+
 # Executar o algoritmo KMeans para cada valor de K
 for k in ks:
     silhouette_avg, _, _ = kmeans(data, k)
