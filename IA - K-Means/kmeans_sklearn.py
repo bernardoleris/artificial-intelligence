@@ -4,6 +4,11 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+import time
+from memory_profiler import memory_usage
+
+start_time = time.time()  # Iniciar contagem de tempo
+mem_usage_before = memory_usage()  # Uso de memória antes da execução
 
 # Carregar a base de dados iris
 iris = load_iris()
@@ -15,6 +20,7 @@ k_values = [3, 5]
 # Lista para armazenar os valores do Silhouette Score
 silhouette_scores = []
 
+print("Algoritmo já implementado:")
 # Iterar sobre os valores de k
 for k in k_values:
     # Criar o modelo KMeans
@@ -33,7 +39,6 @@ for k in k_values:
     silhouette_scores.append(silhouette_avg)
     
     # Imprimir o resultado
-    print("Algoritmo já implementado:")
     print(f"Para k = {k}, o Silhouette Score é {silhouette_avg}")
 
 # Encontrar o melhor valor de k
@@ -41,6 +46,16 @@ best_k_index = np.argmax(silhouette_scores)
 best_k = k_values[best_k_index]
 
 print("Melhor valor de k:", best_k)
+
+# Medir o tempo de execução
+end_time = time.time()
+execution_time = end_time - start_time
+print("Tempo de execução:", execution_time, "segundos")
+
+# Medir o uso de memória após a execução
+mem_usage_after = memory_usage()
+mem_diff = mem_usage_after[0] - mem_usage_before[0]
+print("Uso de memória:", mem_diff, "MB")
 
 # Aplicar PCA com 1 componente
 pca_1 = PCA(n_components=1)

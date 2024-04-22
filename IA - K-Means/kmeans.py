@@ -3,6 +3,11 @@ from sklearn.datasets import load_iris
 from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+import time
+from memory_profiler import memory_usage
+
+start_time = time.time()  # Iniciar contagem de tempo
+mem_usage_before = memory_usage()  # Uso de memória antes da execução
 
 # Passo 1: Especifique K, o número de agrupamentos, e os centros iniciais Ck(k=1,...,K)
 def initialize_centers(data, k):
@@ -81,6 +86,16 @@ for k in ks:
         best_k = k
 
 print("Melhor valor de K:", best_k)
+
+# Medir o tempo de execução
+end_time = time.time()
+execution_time = end_time - start_time
+print("Tempo de execução:", execution_time, "segundos")
+
+# Medir o uso de memória após a execução
+mem_usage_after = memory_usage()
+mem_diff = mem_usage_after[0] - mem_usage_before[0]
+print("Uso de memória:", mem_diff, "MB")
 
 # Aplicar PCA com 1 componente
 pca_1 = PCA(n_components=1)
