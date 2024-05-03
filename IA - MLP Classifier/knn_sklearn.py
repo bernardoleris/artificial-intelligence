@@ -9,12 +9,9 @@ import psutil
 # Função para imprimir métricas de avaliação
 def print_evaluation_metrics(y_true, y_pred):
     accuracy = accuracy_score(y_true, y_pred)
-    print(f"Accuracy: {accuracy:.2f}")
 
     conf_matrix = confusion_matrix(y_true, y_pred)
-    print("\nConfusion Matrix:")
-    print(conf_matrix)
-
+    
     report = classification_report(y_true, y_pred)
     print("\nClassification Report:")
     print(report)
@@ -48,7 +45,6 @@ for dataset, name in datasets:
     best_k = None
 
     for k_value in k_values:
-        print(f"\n--- KNN with k = {k_value} ---")
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_seed)
 
@@ -57,13 +53,11 @@ for dataset, name in datasets:
         model.fit(X_train, y_train)
 
         accuracy = accuracy_score(y_test, model.predict(X_test))
-        print(f"Accuracy for k = {k_value}: {accuracy}")
 
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             best_k = k_value
 
-    print(f"\nBest k for {name} Dataset: {best_k}")
     print(f"\nMetrics for the best k ({best_k}):")
 
     X_train_best, X_test_best, y_train_best, y_test_best = train_test_split(X, y, test_size=test_size, random_state=random_seed)
