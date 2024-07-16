@@ -2,6 +2,8 @@ import heapq
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import time
+
 
 class PuzzleState:
     def __init__(self, board, empty_pos, moves=0):
@@ -118,23 +120,36 @@ def generate_random_board():
     empty_pos = [(ix, iy) for ix, row in enumerate(board) for iy, i in enumerate(row) if i == 0][0]
     return board, empty_pos
 
-def plot_board(state, title=""):
-    board = state.board
+def plot_path(path):
     fig, ax = plt.subplots()
-    ax.matshow(np.array(board) != 0, cmap='gray')
+    ax.set_xticks([])
+    ax.set_yticks([])
 
-    for i in range(3):
-        for j in range(3):
-            c = board[i][j]
-            if c != 0:
-                ax.text(j, i, str(c), va='center', ha='center')
+    def plot_board(state):
+        ax.clear()
+        board = state.board
+        ax.matshow(np.array(board) != 0, cmap='gray')
+        for i in range(3):
+            for j in range(3):
+                c = board[i][j]
+                if c != 0:
+                    ax.text(j, i, str(c), va='center', ha='center')
+        plt.title(f"Move {state.moves}")
+        plt.draw()
 
-    plt.title(title)
-    plt.xticks([])
-    plt.yticks([])
+    current_step = [0]
+
+    def on_click(event):
+        if event.key == 'right':
+            current_step[0] = min(current_step[0] + 1, len(path) - 1)
+        elif event.key == 'left':
+            current_step[0] = max(current_step[0] - 1, 0)
+        plot_board(path[current_step[0]])
+
+    fig.canvas.mpl_connect('key_press_event', on_click)
+    plot_board(path[0])
     plt.show()
 
-# Generate a random solvable board
 board, empty_pos = generate_random_board()
 while not is_solvable(board):
     board, empty_pos = generate_random_board()
@@ -143,18 +158,20 @@ initial_state = PuzzleState(board, empty_pos)
 
 print("Initial State:")
 print(initial_state)
-plot_board(initial_state, "Initial State")
 
 if is_solvable(board):
+    start_time = time.time()  
     path = a_star(initial_state, h2)
+    end_time = time.time()  
 
     if path:
-        # Remove the initial state from the path
         path = path[1:]
         for step in path:
             print()
             print(step)
-            plot_board(step, f"Move {step.moves}")
+        print(f"\nNumber of moves to solve: {len(path)}")
+        print(f"Execution time: {end_time - start_time} seconds") 
+        plot_path(path)
     else:
         print("No solution found.")
 else:
