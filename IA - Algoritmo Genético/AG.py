@@ -1,4 +1,5 @@
 import random
+import time
 import matplotlib.pyplot as plt
 
 def binary_to_decimal(binary):
@@ -46,6 +47,8 @@ def genetic_algorithm(pop_size, gen_count, crossover_rate, mutation_rate):
     best_fitness_per_gen = []
     avg_fitness_per_gen = []
 
+    start_time = time.time()  # Início da medição do tempo
+
     for generation in range(gen_count):
         fitnesses = [fitness_function(binary_to_decimal(individual)) for individual in population]
         best_fitness_per_gen.append(max(fitnesses))
@@ -64,11 +67,14 @@ def genetic_algorithm(pop_size, gen_count, crossover_rate, mutation_rate):
     best_value = binary_to_decimal(best_individual)
     best_fitness = max(fitnesses)
     
-    return best_individual, best_value, best_fitness, best_fitness_per_gen, avg_fitness_per_gen
+    end_time = time.time()  # Fim da medição do tempo
+    execution_time = end_time - start_time
+
+    return best_individual, best_value, best_fitness, best_fitness_per_gen, avg_fitness_per_gen, execution_time
 
 # Parâmetros do AG
-pop_size = 4  # Pode ser ajustado para até 30
-gen_count = 5  # Pode ser ajustado para até 20
+pop_size = 15  # Pode ser ajustado para até 30
+gen_count = 10  # Pode ser ajustado para até 20
 crossover_rate = 0.7
 mutation_rate = 0.01
 
@@ -76,11 +82,14 @@ mutation_rate = 0.01
 random.seed(42)
 
 # Executar o AG
-best_individual, best_value, best_fitness, best_fitness_per_gen, avg_fitness_per_gen = genetic_algorithm(pop_size, gen_count, crossover_rate, mutation_rate)
+best_individual, best_value, best_fitness, best_fitness_per_gen, avg_fitness_per_gen, execution_time = genetic_algorithm(pop_size, gen_count, crossover_rate, mutation_rate)
 
+print(f"População (pop_size): {pop_size}")
+print(f"Gerações (gen_count): {gen_count}")
 print(f"Melhor indivíduo: {best_individual}")
 print(f"Melhor valor de x: {best_value}")
 print(f"Melhor valor da função f(x): {best_fitness}")
+print(f"Tempo de execução: {execution_time:.4f} segundos")
 
 # Plotar a evolução da fitness
 plt.plot(best_fitness_per_gen, label='Melhor Fitness')
